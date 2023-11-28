@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { UserList } from "./UserList";
 import { useDebounce } from "use-debounce";
+import useFetch from "../hooks/useFetch";
 
 const Container = styled.div`
   padding: 1rem;
@@ -41,30 +42,17 @@ type UserType = {
 
 export const SearchInput = () => {
 
-  const [userData, setUserData] = useState([])
+  const [data] = useFetch({ url: "https://jsonplaceholder.typicode.com/users" })
   const [filteredUsers, setFilteredUsers] = useState([])
+  const [userSearch, setUserSearch] = useState("")
   const [debouncedValue] = useDebounce(filteredUsers, 1000)
 
   useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const res = await fetch("https://jsonplaceholder.typicode.com/users")
-
-        const data = await res.json()
-
-        setUserData(data)
-        setFilteredUsers(data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    fetchUserData()
-
-  }, [])
+    updateArray(userSearch)
+  }, [userSearch, data])
 
   function updateArray(searchResult: string) {
-    const filteredUsersArray = userData?.filter((user: UserType) => {
+    const filteredUsersArray = data?.filter((user: UserType) => {
 
       const name = user.name.toLowerCase()
       const email = user.email.toLowerCase()
@@ -79,7 +67,7 @@ export const SearchInput = () => {
   }
 
   function handleInputChange(event: any) {
-    updateArray(event.target.value)
+    setUserSearch(event.target.value)
   }
 
   return (
